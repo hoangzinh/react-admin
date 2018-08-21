@@ -1,17 +1,54 @@
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import RichTextInput from 'ra-input-rich-text';
-import React from 'react';
 import {
+    ArrayInput,
+    AutocompleteInput,
     BooleanInput,
     Create,
     DateInput,
     FormDataConsumer,
     LongTextInput,
     NumberInput,
+    ReferenceInput,
     SaveButton,
+    SelectInput,
     SimpleForm,
+    SimpleFormIterator,
     TextInput,
     Toolbar,
+    crudCreate,
 } from 'react-admin'; // eslint-disable-line import/no-unresolved
+
+const saveWithNote = (values, basePath, redirectTo) =>
+    crudCreate('posts', { ...values, average_note: 10 }, basePath, redirectTo);
+
+class SaveWithNoteButtonComponent extends Component {
+    handleClick = () => {
+        const { basePath, handleSubmit, redirect, saveWithNote } = this.props;
+
+        return handleSubmit(values => {
+            saveWithNote(values, basePath, redirect);
+        });
+    };
+
+    render() {
+        const { handleSubmitWithRedirect, saveWithNote, ...props } = this.props;
+
+        return (
+            <SaveButton
+                handleSubmitWithRedirect={this.handleClick}
+                {...props}
+            />
+        );
+    }
+}
+
+const SaveWithNoteButton = connect(
+    undefined,
+    { saveWithNote }
+)(SaveWithNoteButtonComponent);
 
 const PostCreateToolbar = props => (
     <Toolbar {...props}>
@@ -26,12 +63,18 @@ const PostCreateToolbar = props => (
             submitOnEnter={false}
             variant="flat"
         />
+        <SaveWithNoteButton
+            label="post.action.save_with_average_note"
+            redirect="show"
+            submitOnEnter={false}
+            variant="flat"
+        />
     </Toolbar>
 );
 
 const getDefaultDate = () => new Date();
 
-const PostCreate = props => (
+const PostCreate = ({ permissions, ...props }) => (
     <Create {...props}>
         <SimpleForm
             toolbar={<PostCreateToolbar />}
@@ -57,12 +100,51 @@ const PostCreate = props => (
             <FormDataConsumer>
                 {({ formData, ...rest }) =>
                     formData.title && (
-                        <NumberInput source="average_note" {...rest} />
+                        <NumberInput
+                            source="average_note"
+                            defaultValue={5}
+                            {...rest}
+                        />
                     )
                 }
             </FormDataConsumer>
             <DateInput source="published_at" defaultValue={getDefaultDate} />
             <BooleanInput source="commentable" defaultValue />
+            <ArrayInput
+                source="backlinks"
+                defaultValue={[
+                    {
+                        date: new Date().toISOString(),
+                        url: 'http://google.com',
+                    },
+                ]}
+            >
+                <SimpleFormIterator>
+                    <DateInput source="date" />
+                    <TextInput source="url" />
+                </SimpleFormIterator>
+            </ArrayInput>
+            {permissions === 'admin' && (
+                <ArrayInput source="authors">
+                    <SimpleFormIterator>
+                        <ReferenceInput
+                            label="User"
+                            source="user_id"
+                            reference="users"
+                        >
+                            <AutocompleteInput />
+                        </ReferenceInput>
+                        <SelectInput
+                            source="role"
+                            choices={[
+                                { id: 'headwriter', name: 'Head Writer' },
+                                { id: 'proofreader', name: 'Proof reader' },
+                                { id: 'cowriter', name: 'Co-Writer' },
+                            ]}
+                        />
+                    </SimpleFormIterator>
+                </ArrayInput>
+            )}
         </SimpleForm>
     </Create>
 );

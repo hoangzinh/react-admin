@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 import compose from 'recompose/compose';
 import { addField, translate, FieldTitle } from 'ra-core';
+import ResettableTextField from './ResettableTextField';
 
 const sanitizeRestProps = ({
     addLabel,
@@ -124,9 +124,12 @@ export class SelectInput extends Component {
         }
     }
 
-    handleChange = event => {
-        this.props.input.onChange(event.target.value);
-        this.setState({ value: event.target.value });
+    handleChange = eventOrValue => {
+        const value = eventOrValue.target
+            ? eventOrValue.target.value
+            : eventOrValue;
+        this.props.input.onChange(value);
+        this.setState({ value });
     };
 
     addAllowEmpty = choices => {
@@ -165,16 +168,17 @@ export class SelectInput extends Component {
 
     render() {
         const {
+            allowEmpty,
             choices,
             classes,
             className,
+            input,
             isRequired,
             label,
             meta,
             options,
             resource,
             source,
-            allowEmpty,
             ...rest
         } = this.props;
         if (typeof meta === 'undefined') {
@@ -185,7 +189,7 @@ export class SelectInput extends Component {
         const { touched, error, helperText = false } = meta;
 
         return (
-            <TextField
+            <ResettableTextField
                 select
                 margin="normal"
                 value={this.state.value}
@@ -197,7 +201,9 @@ export class SelectInput extends Component {
                         isRequired={isRequired}
                     />
                 }
+                name={input.name}
                 className={`${classes.input} ${className}`}
+                clearAlwaysVisible
                 error={!!(touched && error)}
                 helperText={(touched && error) || helperText}
                 {...options}
@@ -205,7 +211,7 @@ export class SelectInput extends Component {
                 onChange={this.handleChange}
             >
                 {this.addAllowEmpty(choices.map(this.renderMenuItem))}
-            </TextField>
+            </ResettableTextField>
         );
     }
 }

@@ -15,6 +15,7 @@ export class RichTextInput extends Component {
         classes: PropTypes.object,
         input: PropTypes.object,
         label: PropTypes.string,
+        meta: PropTypes.object,
         options: PropTypes.object,
         source: PropTypes.string,
         toolbar: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
@@ -38,7 +39,7 @@ export class RichTextInput extends Component {
             theme: 'snow',
         });
 
-        this.quill.pasteHTML(value);
+        this.quill.setContents(this.quill.clipboard.convert(value));
 
         this.editor = this.divRef.querySelector('.ql-editor');
         this.quill.on('text-change', debounce(this.onTextChange, 500));

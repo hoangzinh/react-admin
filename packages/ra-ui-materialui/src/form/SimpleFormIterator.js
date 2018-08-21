@@ -9,6 +9,7 @@ import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/RemoveCircleOutline';
 import AddIcon from '@material-ui/icons/AddCircleOutline';
 import { translate } from 'ra-core';
+import classNames from 'classnames';
 
 import FormInput from '../form/FormInput';
 
@@ -64,8 +65,17 @@ export class SimpleFormIterator extends Component {
         // we need a unique id for each field for a proper enter/exit animation
         // but redux-form doesn't provide one (cf https://github.com/erikras/redux-form/issues/2735)
         // so we keep an internal map between the field position and an autoincrement id
-        this.nextId = 0;
-        this.ids = props.fields ? props.fields.map(() => this.nextId++) : [];
+        this.nextId = props.fields.length
+            ? props.fields.length
+            : props.defaultValue
+                ? props.defaultValue.length
+                : 0;
+
+        // We check whether we have a defaultValue (which must be an array) before checking
+        // the fields prop which will always be empty for a new record.
+        // Without it, our ids wouldn't match the default value and we would get key warnings
+        // on the CssTransition element inside our render method
+        this.ids = this.nextId > 0 ? Array.from(Array(this.nextId).keys()) : [];
     }
 
     removeField = index => () => {
@@ -134,6 +144,10 @@ export class SimpleFormIterator extends Component {
                                 {!disableRemove && (
                                     <span className={classes.action}>
                                         <Button
+                                            className={classNames(
+                                                'button-remove',
+                                                `button-remove-${source}-${index}`
+                                            )}
                                             size="small"
                                             onClick={this.removeField(index)}
                                         >
@@ -151,7 +165,14 @@ export class SimpleFormIterator extends Component {
                 {!disableAdd && (
                     <li className={classes.line}>
                         <span className={classes.action}>
-                            <Button size="small" onClick={this.addField}>
+                            <Button
+                                className={classNames(
+                                    'button-add',
+                                    `button-add-${source}`
+                                )}
+                                size="small"
+                                onClick={this.addField}
+                            >
                                 <AddIcon className={classes.leftIcon} />
                                 {translate('ra.action.add')}
                             </Button>
@@ -169,6 +190,7 @@ SimpleFormIterator.defaultProps = {
 };
 
 SimpleFormIterator.propTypes = {
+    defaultValue: PropTypes.any,
     basePath: PropTypes.string,
     children: PropTypes.node,
     classes: PropTypes.object,

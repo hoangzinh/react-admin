@@ -10,7 +10,6 @@ describe('<ReferenceInputController />', () => {
         crudGetMatching: jest.fn(),
         meta: {},
         input: {},
-        record: {},
         reference: 'posts',
         resource: 'comments',
         source: 'post_id',
@@ -393,12 +392,18 @@ describe('<ReferenceInputController />', () => {
                 crudGetMatching={crudGetMatching}
             />
         );
-        expect(crudGetMatching).toHaveBeenCalledTimes(1);
-        expect(crudGetOne).toHaveBeenCalledTimes(1);
+        assert.equal(crudGetMatching.mock.calls.length, 1);
+        assert.equal(crudGetOne.mock.calls.length, 1);
 
         wrapper.instance().setFilter('bar');
-        expect(crudGetMatching.mock.calls.length).toBe(2);
-        expect(crudGetOne).toHaveBeenCalledTimes(1);
+        assert.deepEqual(crudGetMatching.mock.calls[1], [
+            'posts',
+            'comments@post_id',
+            { page: 1, perPage: 25 },
+            { field: 'id', order: 'DESC' },
+            { q: 'bar' },
+        ]);
+        assert.equal(crudGetOne.mock.calls.length, 1);
     });
 
     it('should only call crudGetMatching when props are changed from outside', () => {
@@ -413,20 +418,38 @@ describe('<ReferenceInputController />', () => {
                 crudGetMatching={crudGetMatching}
             />
         );
-        expect(crudGetMatching).toHaveBeenCalledTimes(1);
-        expect(crudGetOne).toHaveBeenCalledTimes(1);
+        assert.equal(crudGetMatching.mock.calls.length, 1);
+        assert.equal(crudGetOne.mock.calls.length, 1);
 
         wrapper.setProps({ filter: { foo: 'bar' } });
-        expect(crudGetMatching.mock.calls.length).toBe(2);
-        expect(crudGetOne).toHaveBeenCalledTimes(1);
+        assert.deepEqual(crudGetMatching.mock.calls[1], [
+            'posts',
+            'comments@post_id',
+            { page: 1, perPage: 25 },
+            { field: 'id', order: 'DESC' },
+            { foo: 'bar' },
+        ]);
+        assert.equal(crudGetOne.mock.calls.length, 1);
 
         wrapper.setProps({ sort: { field: 'foo', order: 'ASC' } });
-        expect(crudGetMatching.mock.calls.length).toBe(3);
-        expect(crudGetOne).toHaveBeenCalledTimes(1);
+        assert.deepEqual(crudGetMatching.mock.calls[2], [
+            'posts',
+            'comments@post_id',
+            { page: 1, perPage: 25 },
+            { field: 'foo', order: 'ASC' },
+            { foo: 'bar' },
+        ]);
+        assert.equal(crudGetOne.mock.calls.length, 1);
 
         wrapper.setProps({ perPage: 42 });
-        expect(crudGetMatching.mock.calls.length).toBe(4);
-        expect(crudGetOne).toHaveBeenCalledTimes(1);
+        assert.deepEqual(crudGetMatching.mock.calls[3], [
+            'posts',
+            'comments@post_id',
+            { page: 1, perPage: 42 },
+            { field: 'foo', order: 'ASC' },
+            { foo: 'bar' },
+        ]);
+        assert.equal(crudGetOne.mock.calls.length, 1);
     });
 
     it('should call crudGetOne when input value changes', () => {
@@ -439,9 +462,9 @@ describe('<ReferenceInputController />', () => {
                 crudGetOne={crudGetOne}
             />
         );
-        expect(crudGetOne.mock.calls.length).toBe(1);
+        assert.equal(crudGetOne.mock.calls.length, 1);
         wrapper.setProps({ input: { value: 6 } });
-        expect(crudGetOne.mock.calls.length).toBe(2);
+        assert.equal(crudGetOne.mock.calls.length, 2);
     });
 
     it('should call crudGetOne and crudGetMatching when record changes', () => {
@@ -456,10 +479,10 @@ describe('<ReferenceInputController />', () => {
                 crudGetMatching={crudGetMatching}
             />
         );
-        expect(crudGetOne.mock.calls.length).toBe(1);
-        expect(crudGetMatching.mock.calls.length).toBe(1);
+        assert.equal(crudGetMatching.mock.calls.length, 1);
+        assert.equal(crudGetOne.mock.calls.length, 1);
         wrapper.setProps({ record: { id: 1 } });
-        expect(crudGetOne.mock.calls.length).toBe(2);
-        expect(crudGetMatching.mock.calls.length).toBe(2);
+        assert.equal(crudGetMatching.mock.calls.length, 2);
+        assert.equal(crudGetOne.mock.calls.length, 2);
     });
 });

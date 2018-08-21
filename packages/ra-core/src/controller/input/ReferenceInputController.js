@@ -109,7 +109,7 @@ export class ReferenceInputController extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.props.record.id !== nextProps.record.id) {
+        if ((this.props.record || {}).id !== (nextProps.record || {}).id) {
             this.fetchReferenceAndOptions(nextProps);
         } else if (this.props.input.value !== nextProps.input.value) {
             this.fetchReference(nextProps);
@@ -118,28 +118,38 @@ export class ReferenceInputController extends Component {
             !isEqual(nextProps.sort, this.props.sort) ||
             nextProps.perPage !== this.props.perPage
         ) {
-            this.fetchOptions(nextProps);
+            this.setState(
+                state => ({
+                    filter: nextProps.filter,
+                    pagination: {
+                        ...state.pagination,
+                        perPage: nextProps.perPage,
+                    },
+                    sort: nextProps.sort,
+                }),
+                this.fetchOptions
+            );
         }
     }
 
     setFilter = filter => {
         if (filter !== this.state.filter) {
-            this.setState({ filter: this.props.filterToQuery(filter) });
-            this.fetchOptions();
+            this.setState(
+                { filter: this.props.filterToQuery(filter) },
+                this.fetchOptions
+            );
         }
     };
 
     setPagination = pagination => {
         if (pagination !== this.state.pagination) {
-            this.setState({ pagination });
-            this.fetchOptions();
+            this.setState({ pagination }, this.fetchOptions);
         }
     };
 
     setSort = sort => {
         if (sort !== this.state.sort) {
-            this.setState({ sort });
-            this.fetchOptions();
+            this.setState({ sort }, this.fetchOptions);
         }
     };
 

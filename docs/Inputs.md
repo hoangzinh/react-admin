@@ -30,7 +30,7 @@ All input components accept the following attributes:
 
 * `source`: Property name of your entity to view/edit. This attribute is required.
 * `defaultValue`: Value to be set when the property is `null` or `undefined`.
-* `validate`: Validation rules for the current property (see the [Validation Documentation](./CreateEdit.html#validation))
+* `validate`: Validation rules for the current property (see the [Validation Documentation](./CreateEdit.md#validation))
 * `label`: Used as a table header of an input label. Defaults to the `source` when omitted.
 * `style`: A style object to customize the look and feel of the field container (e.g. the `<div>` in a form).
 * `elStyle`: A style object to customize the look and feel of the field element itself
@@ -79,7 +79,7 @@ import { ArrayInput, SimpleFormIterator, DateInput, TextInput } from 'react-admi
 
 ![ArrayInput](./img/array-input.png)
 
- `<ArrayInput>` allows the edition of embedded arrays, like the `backlinks` field in the following `post` record:
+ `<ArrayInput>` allows editing of embedded arrays, like the `backlinks` field in the following `post` record:
 
 ```js
 {
@@ -445,7 +445,7 @@ Writing a custom field component for displaying the current value(s) is easy:  i
 
 When receiving **new** files, `FileInput` will add a `rawFile` property to the object passed as the `record` prop of children. This `rawFile` is the [File](https://developer.mozilla.org/en-US/docs/Web/API/File) instance of the newly added file. This can be useful to display informations about size or mimetype inside a custom field.
 
-The `FileInput` component accepts all [react-dropzone properties](https://github.com/okonet/react-dropzone#features), in addition to those of react-admin. For instance, if you need to upload several files at once, just add the `multiple` DropZone attribute to your `<FileInput />` field.
+The `FileInput` component accepts an `options` prop into which you can pass all the [react-dropzone properties](https://github.com/okonet/react-dropzone#features). For instance, if you need to upload several files at once, just add the {% raw %}`options={{ multiple: true }}`{% endraw %} DropZone attribute to your `<FileInput />` field.
 
 If the default Dropzone label doesn't fit with your need, you can pass a `placeholder` attribute to overwrite it. The attribute can be anything React can render (`PropTypes.node`):
 
@@ -468,6 +468,17 @@ import { LongTextInput } from 'react-admin';
 ```
 
 ![LongTextInput](./img/long-text-input.png)
+
+You can make the `LongTextInput` component resettable using the `resettable` prop. This will add a reset button which will be displayed only when the field has a value and is focused.
+
+```jsx
+import { LongTextInput } from 'react-admin';
+
+<LongTextInput source="title" resettable />
+```
+
+![resettable LongTextInput](./img/resettable-long-text-input.png)
+
 
 ## `<NumberInput>`
 
@@ -619,7 +630,7 @@ import { ReferenceArrayInput, SelectArrayInput } from 'react-admin'
 ```
 
 Set the `allowEmpty` prop when you want to add an empty choice with a value of null in the choices list.
-Disabling `allowEmpty` does not mean that the input will be required. If you want to make the input required, you must add a validator as indicated in [Validation Documentation](./CreateEdit.html#validation). Enabling the `allowEmpty` props just adds an empty choice (with `null` value) on top of the options, and makes the value nullable.
+Disabling `allowEmpty` does not mean that the input will be required. If you want to make the input required, you must add a validator as indicated in [Validation Documentation](./CreateEdit.md#validation). Enabling the `allowEmpty` props just adds an empty choice (with `null` value) on top of the options, and makes the value nullable.
 
 ```js
 import { ReferenceArrayInput, SelectArrayInput } from 'react-admin'
@@ -692,7 +703,7 @@ import { ReferenceInput, SelectInput } from 'react-admin'
 ```
 
 Set the `allowEmpty` prop when you want to add an empty choice with a value of null in the choices list.
-Disabling `allowEmpty` does not mean that the input will be required. If you want to make the input required, you must add a validator as indicated in [Validation Documentation](./CreateEdit.html#validation). Enabling the `allowEmpty` props just adds an empty choice (with `null` value) on top of the options, and makes the value nullable.
+Disabling `allowEmpty` does not mean that the input will be required. If you want to make the input required, you must add a validator as indicated in [Validation Documentation](./CreateEdit.md#validation). Enabling the `allowEmpty` props just adds an empty choice (with `null` value) on top of the options, and makes the value nullable.
 
 ```jsx
 import { ReferenceInput, SelectInput } from 'react-admin'
@@ -898,6 +909,10 @@ import { SelectInput, ReferenceInput } from 'react-admin'
 
 If, instead of showing choices as a dropdown list, you prefer to display them as a list of radio buttons, try the [`<RadioButtonGroupInput>`](#radiobuttongroupinput). And if the list is too big, prefer the [`<AutocompleteInput>`](#autocompleteinput).
 
+You can make the `SelectInput` component resettable using the `resettable` prop. This will add a reset button which will be displayed only when the field has a value.
+
+![resettable SelectInput](./img/resettable-select-input.png)
+
 ## `<SelectArrayInput>`
 
 To let users choose several values in a list using a dropdown, use `<SelectArrayInput>`. It renders using [Material ui's `<Select>`](http://www.material-ui.com/#/components/select). Set the `choices` attribute to determine the options (with `id`, `name` tuples):
@@ -1009,6 +1024,17 @@ You can choose a specific input type using the `type` attribute, for instance `t
 ```jsx
 <TextInput label="Email Address" source="email" type="email" />
 ```
+
+You can make the `TextInput` component resettable using the `resettable` prop. This will add a reset button which will be displayed only when the field has a value and is focused.
+
+```jsx
+import { TextInput } from 'react-admin';
+
+<TextInput source="title" resettable />
+```
+
+![resettable TextInput](./img/resettable-text-input.png)
+
 
 **Warning**: Do not use `type="number"`, or you'll receive a string as value (this is a [known React bug](https://github.com/facebook/react/issues/1425)). Instead, use [`<NumberInput>`](#numberinput).
 
